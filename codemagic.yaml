@@ -11,12 +11,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.cicdmegic.app
-        certificates:
-          - certificate: "ios_distribution_cicd.p12"
-            passphrase: "123456789"
-        provisioning_profiles:
-          - provisioning_profile: "cicdmegic_dis.mobileprovision"
-            bundle_identifier: com.cicdmegic.app
 
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
@@ -45,6 +39,7 @@ workflows:
       - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
         script: |
           keychain initialize
+          keychain add-certificates
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
