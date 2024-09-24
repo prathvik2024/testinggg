@@ -16,7 +16,7 @@ workflows:
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: com.cicdmegic.app
         APP_STORE_APP_ID: 6692628444
-        APP_STORE_CONNECT_API_KEY: "testing/AuthKey_FZD8N8362T"
+        APP_STORE_CONNECT_API_KEY: "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgX41ItzCIHwxuBEP7VOCSmj+Zx4yK9rybRPRLSuckG02gCgYIKoZIzj0DAQehRANCAAQ1763TfiNPWIrvBuyFiB3hK5SPsQZ2ffpc889ByvObECT5dNUxEr0dVJ2G4HhcGoZ7/d5ONUE+0yfFLfw6T3xa"
         xcode: 15.2
         FLUTTER_VERSION: "3.24.3"
       cocoapods: default
