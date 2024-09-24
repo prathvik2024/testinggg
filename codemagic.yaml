@@ -41,9 +41,6 @@ workflows:
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
-      - name: Increment build number
-        script: |
-          agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "6692628444") + 1))
       - name: Clean build folder
         script: |
           flutter clean
