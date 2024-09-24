@@ -3,6 +3,8 @@ workflows:
     name: CiCd Dyz Test
     instance_type: mac_mini_m2
     working_directory: ios/
+    integrations:
+      app_store_connect: "eSparkBiz Technologies Private Limited"
     environment:
       groups:
         - cicd Megic
