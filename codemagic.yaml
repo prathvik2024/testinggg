@@ -11,6 +11,13 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.cicdmegic.app
+        certificates:
+          - certificate: "ios_distribution_cicd.p12"
+            passphrase: "123456789"
+        provisioning_profiles:
+          - provisioning_profile: "cicdmegic_dis.mobileprovision"
+            bundle_identifier: com.cicdmegic.app
+
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
