@@ -10,17 +10,6 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Increment version code
-        script: |
-          # Extract the current version code from build.gradle
-          VERSION_CODE=$(grep -oP 'versionCode \K\d+' android/app/build.gradle)
-          echo "version code: $VERSION_CODE"
-          # Increment the version code
-          NEW_VERSION_CODE=$((VERSION_CODE + 1))
-          echo "version code: $NEW_VERSION_CODE"
-          # Replace the version code in build.gradle
-          sed -i -e "s/versionCode $VERSION_CODE/versionCode $NEW_VERSION_CODE/g" android/app/build.gradle
-
       - name: Build Android APK
         script: |
           flutter build apk --release --no-shrink
