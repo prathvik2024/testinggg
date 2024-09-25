@@ -43,13 +43,6 @@ workflows:
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
-      - name: Clean build folder
-        script: |
-          flutter clean
-          rm -rf ios/Pods
-          rm -rf ios/Podfile.lock
-          flutter pub get
-          pod install --repo-update
       - name: Fetch and increment the build number from TestFlight
         script: |
           # Fetch latest build number using App Store Connect API
@@ -70,6 +63,13 @@ workflows:
           
           # Display the updated version for confirmation
           grep "version: " pubspec.yaml
+      - name: Clean build folder
+        script: |
+          flutter clean
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          flutter pub get
+          pod install --repo-update
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
