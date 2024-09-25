@@ -11,15 +11,15 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.cicdmegic.app
-
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: com.cicdmegic.app
         APP_STORE_APP_ID: 6692628444
-        APP_STORE_CONNECT_API_KEY: "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgX41ItzCIHwxuBEP7VOCSmj+Zx4yK9rybRPRLSuckG02gCgYIKoZIzj0DAQehRANCAAQ1763TfiNPWIrvBuyFiB3hK5SPsQZ2ffpc889ByvObECT5dNUxEr0dVJ2G4HhcGoZ7/d5ONUE+0yfFLfw6T3xa"
+        APP_STORE_CONNECT_API_KEY: "YOUR_APP_STORE_CONNECT_API_KEY"
         xcode: 15.2
         FLUTTER_VERSION: "3.24.3"
+        ENV_VERSION_NAME: ""
       cocoapods: default
     scripts:
       - name: Install Flutter
@@ -30,19 +30,56 @@ workflows:
           export PATH="$PATH:$(pwd)/bin"
           flutter channel stable
           flutter upgrade
+
       - name: Get Flutter packages
         script: |
           flutter packages pub get
+
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
+
       - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
         script: |
           keychain initialize
           keychain add-certificates
+
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
+
+      - name: Fetch version name and build number from TestFlight
+        script: |
+          # Install app-store-connect CLI if it's not already installed
+          gem install app_store_connect
+          
+          # Fetch the latest version number and build number from TestFlight
+          LATEST_VERSION_NAME=$(app-store-connect get-latest-app-version $APP_STORE_APP_ID)
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
+          
+          echo "Latest Version Name: $LATEST_VERSION_NAME"
+          echo "Latest Build Number: $LATEST_BUILD_NUMBER"
+
+          # Increment the build number
+          NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
+          
+          # Determine the version name based on the ENV_VERSION_NAME variable
+          if [ -z "$ENV_VERSION_NAME" ]; then
+            # If ENV_VERSION_NAME is empty, use the latest version name
+            NEXT_VERSION_NAME="$LATEST_VERSION_NAME"
+          else
+            # Use the provided version name from the environment variable
+            NEXT_VERSION_NAME="$ENV_VERSION_NAME"
+          fi
+          
+          echo "Next Version Name: $NEXT_VERSION_NAME"
+          echo "Next Build Number: $NEXT_BUILD_NUMBER"
+
+          # Use agvtool to update the version and build number in the Xcode project
+          cd ios
+          agvtool new-marketing-version $NEXT_VERSION_NAME
+          agvtool new-version -all $NEXT_BUILD_NUMBER
+
       - name: Clean build folder
         script: |
           flutter clean
@@ -50,38 +87,20 @@ workflows:
           rm -rf ios/Podfile.lock
           flutter pub get
           pod install --repo-update
+
       - name: Flutter build ipa
         script: |
-          # Install app-store-connect CLI if it's not already installed
-          gem install app_store_connect
-          
-          # Fetch the latest build number from TestFlight
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
-          
-          echo "Latest Build Number: $LATEST_BUILD_NUMBER"
-          
-          # Increment the build number
-          NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
-          
-          echo "Next Build Number: $NEXT_BUILD_NUMBER"
-          
-          # Use agvtool to update the build number in the Xcode project
-          cd ios
-          agvtool new-version -all $NEXT_BUILD_NUMBER
-          
-          echo "Latest Build Number: $NEXT_BUILD_NUMBER"
           flutter build ipa --release \
-            --build-name=2.0.0 \
+            --build-name=$NEXT_VERSION_NAME \
             --build-number=$NEXT_BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
+
     artifacts:
       - $CM_BUILD_DIR/build/ios/ipa/*.ipa
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
     publishing:
       app_store_connect:
-        #        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        #        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        #        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         auth: integration
         submit_to_testflight: true
         submit_to_app_store: false
