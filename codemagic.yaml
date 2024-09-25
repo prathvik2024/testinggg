@@ -50,6 +50,26 @@ workflows:
           rm -rf ios/Podfile.lock
           flutter pub get
           pod install --repo-update
+      - name: Fetch and increment the build number from TestFlight
+        script: |
+          # Fetch latest build number using App Store Connect API
+          LATEST_BUILD_NUMBER=$(curl -X GET "https://api.appstoreconnect.apple.com/v1/builds?filter[appStoreVersion]=$APP_STORE_APP_ID" \
+            -H "Authorization: Bearer $APP_STORE_CONNECT_API_KEY" \
+            -H "Content-Type: application/json" | \
+            jq '.data | max_by(.attributes.version) | .attributes.version')
+          
+          echo "Latest Build Number: $LATEST_BUILD_NUMBER"
+          
+          # Increment the build number
+          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          
+          echo "New Build Number: $NEW_BUILD_NUMBER"
+          
+          # Set the build number in pubspec.yaml
+          sed -i.bak "s/\(version: [0-9]\+\.[0-9]\+\.[0-9]\+\+\)[0-9]\+/\1$NEW_BUILD_NUMBER/" pubspec.yaml
+          
+          # Display the updated version for confirmation
+          grep "version: " pubspec.yaml
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
@@ -61,9 +81,9 @@ workflows:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
       app_store_connect:
-#        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-#        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-#        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        #        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        #        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        #        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         auth: integration
         submit_to_testflight: true
         submit_to_app_store: false
