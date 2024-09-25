@@ -43,12 +43,6 @@ workflows:
       - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
-      - name: Log Output directories
-        script: |
-          echo "$CM_BUILD_DIR"
-          ls $CM_BUILD_DIR 
-          echo "search for ipa"
-          find "$CM_BUILD_DIR/ios/App/build/ios/ipa/*.ipa"
       - name: Clean build folder
         script: |
           flutter clean
@@ -63,13 +57,14 @@ workflows:
             --build-number=2 \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
-      - $CM_BUILD_DIR/ios/App/build/ios/ipa/*.ipa
+      - $CM_BUILD_DIR/build/ios/ipa/*.ipa
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        auth: integration
         submit_to_testflight: true
         submit_to_app_store: true
       email:
