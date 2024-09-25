@@ -19,7 +19,7 @@ workflows:
         APP_STORE_CONNECT_API_KEY: "YOUR_APP_STORE_CONNECT_API_KEY"
         xcode: 15.2
         FLUTTER_VERSION: "3.24.3"
-        ENV_VERSION_NAME: "latest"  # Default value to avoid validation error
+        ENV_VERSION_NAME: ""  # Set this to your environment variable
       cocoapods: default
     scripts:
       - name: Install Flutter
@@ -53,22 +53,28 @@ workflows:
           # Install app-store-connect CLI if it's not already installed
           gem install app_store_connect
           
-          # Fetch the latest version number and build number from TestFlight
-          LATEST_VERSION_NAME=$(app-store-connect get-latest-app-version $APP_STORE_APP_ID)
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
+          # Fetch the latest build details
+          LATEST_BUILD_DETAILS=$(app-store-connect list-builds $APP_STORE_APP_ID --json)
+          
+          echo "Latest Build Details: $LATEST_BUILD_DETAILS"
+
+          # Use Python to extract the latest version name from the JSON output
+          LATEST_VERSION_NAME=$(echo $LATEST_BUILD_DETAILS | python3 -c "import sys, json; print(json.load(sys.stdin)[0]['version'])")
           
           echo "Latest Version Name: $LATEST_VERSION_NAME"
+
+          # Fetch the latest build number from TestFlight
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
+          
           echo "Latest Build Number: $LATEST_BUILD_NUMBER"
 
           # Increment the build number
           NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           
           # Determine the version name based on the ENV_VERSION_NAME variable
-          if [ "$ENV_VERSION_NAME" = "latest" ]; then
-            # If ENV_VERSION_NAME is "latest", use the latest version name
+          if [ -z "$ENV_VERSION_NAME" ]; then
             NEXT_VERSION_NAME="$LATEST_VERSION_NAME"
           else
-            # Use the provided version name from the environment variable
             NEXT_VERSION_NAME="$ENV_VERSION_NAME"
           fi
           
