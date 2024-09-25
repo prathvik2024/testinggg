@@ -48,7 +48,7 @@ workflows:
           echo "$CM_BUILD_DIR"
           ls $CM_BUILD_DIR 
           echo "search for ipa"
-          find "$CM_BUILD_DIR" -type f -name "*.ipa"
+          find "$CM_BUILD_DIR/ios/App/build/ios/ipa/*.ipa"
       - name: Clean build folder
         script: |
           flutter clean
