@@ -6,10 +6,12 @@ workflows:
       flutter: stable
 
     scripts:
-      - name: Install dependencies
+      - name: Clean Flutter
+        script: |
+          flutter clean
+      - name: Build Android APK
         script: |
           flutter pub get
-
       - name: Build Android APK
         script: |
           flutter build apk --release --no-shrink
