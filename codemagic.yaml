@@ -19,7 +19,13 @@ workflows:
         APP_STORE_APP_ID: 6692628444
         APP_STORE_CONNECT_API_KEY: "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgX41ItzCIHwxuBEP7VOCSmj+Zx4yK9rybRPRLSuckG02gCgYIKoZIzj0DAQehRANCAAQ1763TfiNPWIrvBuyFiB3hK5SPsQZ2ffpc889ByvObECT5dNUxEr0dVJ2G4HhcGoZ7/d5ONUE+0yfFLfw6T3xa"
         xcode: 15.2
+        VERSION_NAME: "2.0.0"
         FLUTTER_VERSION: "3.24.3"
+        FEEDBACK_EMAIL: "iosdev78@gmail.com"  # Replace with your feedback email
+        FIRST_NAME: "IOS"                       # Replace with your first name
+        LAST_NAME: "Dev"                         # Replace with your last name
+        PHONE_NUMBER: "9023728519"              # Replace with your phone number
+        CONTACT_EMAIL: "iosdev78@gmail.com"      # Replace with your email
       cocoapods: default
     scripts:
       - name: Install Flutter
@@ -74,6 +80,22 @@ workflows:
             --build-name=$VERSION_NAME \
             --build-number=$NEXT_BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
+
+          # Invite external testers after the build is ready
+                   BUILD_ID=$(app-store-connect get-latest-testflight-build-id $APP_STORE_APP_ID)
+                   BUILD_STATUS=$(app-store-connect get-build-status --app-id $APP_STORE_APP_ID --build-id $BUILD_ID)
+
+                   echo "Current Build Status: $BUILD_STATUS"
+
+                   if [[ "$BUILD_STATUS" == "Ready for Beta Testers" ]]; then
+                     echo "Build is ready for testing. Inviting external testers..."
+                     app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "external" \
+                       --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
+                       "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
+                       "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
+                   else
+                     echo "Build is not assignable. Current status: $BUILD_STATUS"
+                   fi
 
     artifacts:
       - $CM_BUILD_DIR/build/ios/ipa/*.ipa
