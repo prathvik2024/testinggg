@@ -1,4 +1,38 @@
 workflows:
+  android-release:
+    name: Android Release
+    max_build_duration: 60
+    environment:
+      flutter: stable
+
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter pub get
+
+      - name: Increment version code
+        script: |
+          # Extract the current version code from build.gradle
+          VERSION_CODE=$(grep -oP 'versionCode \K\d+' android/app/build.gradle)
+          echo "version code: $VERSION_CODE"
+          # Increment the version code
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+          echo "version code: $NEW_VERSION_CODE"
+          # Replace the version code in build.gradle
+          sed -i -e "s/versionCode $VERSION_CODE/versionCode $NEW_VERSION_CODE/g" android/app/build.gradle
+
+      - name: Build Android APK
+        script: |
+          flutter build apk --release --no-shrink
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+
+    publishing:
+      email:
+        recipients:
+          - prathvik.sankaliya.2024@gmail.com
+
   ios-automatic-code-signing:
     name: CiCd Dyz Test
     instance_type: mac_mini_m2
@@ -11,7 +45,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.cicdmegic.app
-
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
@@ -21,11 +54,11 @@ workflows:
         xcode: 15.2
         VERSION_NAME: "2.0.0"
         FLUTTER_VERSION: "3.24.3"
-        FEEDBACK_EMAIL: "iosdev78@gmail.com"  # Replace with your feedback email
-        FIRST_NAME: "IOS"                       # Replace with your first name
-        LAST_NAME: "Dev"                         # Replace with your last name
-        PHONE_NUMBER: "9023728519"              # Replace with your phone number
-        CONTACT_EMAIL: "iosdev78@gmail.com"      # Replace with your email
+        FEEDBACK_EMAIL: "iosdev78@gmail.com"
+        FIRST_NAME: "IOS"
+        LAST_NAME: "Dev"
+        PHONE_NUMBER: "9023728519"
+        CONTACT_EMAIL: "iosdev78@gmail.com"
         USES_ENCRYPTION: false
       cocoapods: default
     scripts:
