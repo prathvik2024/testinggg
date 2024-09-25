@@ -45,24 +45,22 @@ workflows:
           xcode-project use-profiles
       - name: Fetch and increment the build number from TestFlight
         script: |
-          # Fetch latest build number using App Store Connect API
-          LATEST_BUILD_NUMBER=$(curl -X GET "https://api.appstoreconnect.apple.com/v1/builds?filter[appStoreVersion]=$APP_STORE_APP_ID" \
-            -H "Authorization: Bearer $APP_STORE_CONNECT_API_KEY" \
-            -H "Content-Type: application/json" | \
-            jq '.data | max_by(.attributes.version) | .attributes.version')
+          # Install app-store-connect CLI if it's not already installed
+          gem install app_store_connect
+          
+          # Fetch the latest build number from TestFlight
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
           
           echo "Latest Build Number: $LATEST_BUILD_NUMBER"
           
           # Increment the build number
-          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           
-          echo "New Build Number: $NEW_BUILD_NUMBER"
+          echo "Next Build Number: $NEXT_BUILD_NUMBER"
           
-          # Set the build number in pubspec.yaml
-          sed -i.bak "s/\(version: [0-9]\+\.[0-9]\+\.[0-9]\+\+\)[0-9]\+/\1$NEW_BUILD_NUMBER/" pubspec.yaml
-          
-          # Display the updated version for confirmation
-          grep "version: " pubspec.yaml
+          # Use agvtool to update the build number in the Xcode project
+          cd ios
+          agvtool new-version -all $NEXT_BUILD_NUMBER
       - name: Clean build folder
         script: |
           flutter clean
