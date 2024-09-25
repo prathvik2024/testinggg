@@ -19,7 +19,7 @@ workflows:
         APP_STORE_CONNECT_API_KEY: "YOUR_APP_STORE_CONNECT_API_KEY"
         xcode: 15.2
         FLUTTER_VERSION: "3.24.3"
-        ENV_VERSION_NAME: "latest"  # Default value to avoid validation error
+        VERSION_NAME: "2.0.0"  # Default value to avoid validation error
       cocoapods: default
     scripts:
       - name: Install Flutter
@@ -61,11 +61,7 @@ workflows:
           # Increment the build number
           NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           
-          # Determine the version name based on the ENV_VERSION_NAME variable
-            NEXT_VERSION_NAME="$ENV_VERSION_NAME"
-          
-          
-          echo "Version Name: $NEXT_VERSION_NAME"
+          echo "Version Name: $VERSION_NAME"
           echo "Next Build Number: $NEXT_BUILD_NUMBER"
 
           # Use agvtool to update the version and build number in the Xcode project
@@ -83,7 +79,7 @@ workflows:
       - name: Flutter build ipa
         script: |
           flutter build ipa --release \
-            --build-name=$NEXT_VERSION_NAME \
+            --build-name=$VERSION_NAME \
             --build-number=$NEXT_BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
 
