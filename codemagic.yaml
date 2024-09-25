@@ -19,7 +19,7 @@ workflows:
         APP_STORE_CONNECT_API_KEY: "YOUR_APP_STORE_CONNECT_API_KEY"
         xcode: 15.2
         FLUTTER_VERSION: "3.24.3"
-        ENV_VERSION_NAME: ""
+        ENV_VERSION_NAME: "latest"  # Default value to avoid validation error
       cocoapods: default
     scripts:
       - name: Install Flutter
@@ -64,8 +64,8 @@ workflows:
           NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           
           # Determine the version name based on the ENV_VERSION_NAME variable
-          if [ -z "$ENV_VERSION_NAME" ]; then
-            # If ENV_VERSION_NAME is empty, use the latest version name
+          if [ "$ENV_VERSION_NAME" = "latest" ]; then
+            # If ENV_VERSION_NAME is "latest", use the latest version name
             NEXT_VERSION_NAME="$LATEST_VERSION_NAME"
           else
             # Use the provided version name from the environment variable
