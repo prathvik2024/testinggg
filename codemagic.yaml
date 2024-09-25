@@ -4,7 +4,6 @@ workflows:
     max_build_duration: 60
     environment:
       flutter: stable
-
     scripts:
       - name: Clean Flutter
         script: |
@@ -53,7 +52,7 @@ workflows:
         USES_ENCRYPTION: false
       cocoapods: default
     scripts:
-      - name: Install Flutter
+      - name: Install Flutter Version
         script: |
           git clone https://github.com/flutter/flutter.git
           cd flutter
@@ -61,20 +60,20 @@ workflows:
           export PATH="$PATH:$(pwd)/bin"
           flutter channel stable
           flutter upgrade
-      - name: Get Flutter packages
+      - name: Fetch Flutter Packages
         script: |
           flutter packages pub get
-      - name: Install pods
+      - name: Install CocoaPods
         script: |
           find . -name "Podfile" -execdir pod install \;
-      - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
+      - name: Initialize Keychain for Code Signing
         script: |
           keychain initialize
           keychain add-certificates
-      - name: Set up code signing settings on Xcode project
+      - name: Apply Code Signing Profiles to Xcode
         script: |
           xcode-project use-profiles
-      - name: Clean build folder
+      - name: Clean Xcode Build and Install Pods
         script: |
           flutter clean
           rm -rf ios/Pods
