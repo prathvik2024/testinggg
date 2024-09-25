@@ -117,8 +117,14 @@ workflows:
           echo "Current Build Status: $BUILD_STATUS"
 
           if [[ "$BUILD_STATUS" == "Ready for Beta Testers" ]]; then
-            echo "Build is ready for testing. Inviting external testers..."
-            app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "external" \
+            # Invite external testers
+              app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "external" \
+              --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
+              "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
+              "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
+                        
+              # Invite internal testers
+              app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "internal" \
               --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
               "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
               "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
