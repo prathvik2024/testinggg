@@ -14,7 +14,13 @@ workflows:
       - name: Build Android APK
         script: |
           flutter build apk --release --no-shrink
-
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: "master"
+          include: true
+          source: true
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
 
@@ -51,7 +57,13 @@ workflows:
         CONTACT_EMAIL: "iosdev78@gmail.com"
         USES_ENCRYPTION: false
       cocoapods: default
-
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: "master"
+          include: true
+          source: true
     scripts:
       - name: Install Flutter Version
         script: |
