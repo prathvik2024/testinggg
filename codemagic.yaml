@@ -51,6 +51,20 @@ workflows:
         CONTACT_EMAIL: "iosdev78@gmail.com"
         USES_ENCRYPTION: false
       cocoapods: default
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: "master"
+          include: true
+          source: true
+      tag_patterns: # Include or exclude watched tag labels
+        - pattern: '*-dev'
+          include: true
+        - pattern: excluded-tag
+          include: false
+        - pattern: included-tag
+          include: true
     scripts:
       - name: Install Flutter Version
         script: |
@@ -121,7 +135,7 @@ workflows:
               --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
               "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
               "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
-                        
+          
               # Invite internal testers
               app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "internal" \
               --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
