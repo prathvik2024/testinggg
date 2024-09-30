@@ -55,8 +55,9 @@ workflows:
     triggering:
       events:
         - tag
+        - push
       branch_patterns:
-        - pattern: "master"   # Only trigger on 'development' branch
+        - pattern: "master"
           include: true
       tag_patterns: # Include or exclude watched tag labels
         - pattern: '*--dev'
