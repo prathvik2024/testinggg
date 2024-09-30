@@ -60,11 +60,7 @@ workflows:
           include: true
           source: true
       tag_patterns: # Include or exclude watched tag labels
-        - pattern: '*-dev'
-          include: true
-        - pattern: excluded-tag
-          include: false
-        - pattern: included-tag
+        - pattern: '*--dev'
           include: true
     scripts:
       - name: Install Flutter Version
