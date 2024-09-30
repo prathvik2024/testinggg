@@ -57,13 +57,18 @@ workflows:
         CONTACT_EMAIL: "iosdev78@gmail.com"
         USES_ENCRYPTION: false
       cocoapods: default
+
     triggering:
       events:
+        - tag
         - push
       branch_patterns:
-        - pattern: "master"
+        - pattern: 'master'
           include: true
           source: true
+      tag_patterns:
+        - pattern: '--dev'
+          include: true
     scripts:
       - name: Install Flutter Version
         script: |
@@ -134,7 +139,7 @@ workflows:
               --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
               "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
               "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
-                        
+          
               # Invite internal testers
               app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "internal" \
               --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
@@ -158,3 +163,135 @@ workflows:
         notify:
           success: true
           failure: true
+
+
+
+#  ios-automatic-code-signing:
+#    name: CiCd Dyz Test
+#    instance_type: mac_mini_m2
+#    working_directory: ios/
+#    integrations:
+#      app_store_connect: "eSparkBiz Technologies Private Limited"
+#    environment:
+#      groups:
+#        - cicd Megic
+#      ios_signing:
+#        distribution_type: app_store
+#        bundle_identifier: com.cicdmegic.app
+#      vars:
+#        XCODE_WORKSPACE: "Runner.xcworkspace"
+#        XCODE_SCHEME: "Runner"
+#        BUNDLE_ID: com.cicdmegic.app
+#        APP_STORE_APP_ID: 6692628444
+#        APP_STORE_CONNECT_API_KEY: "MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgX41ItzCIHwxuBEP7VOCSmj+Zx4yK9rybRPRLSuckG02gCgYIKoZIzj0DAQehRANCAAQ1763TfiNPWIrvBuyFiB3hK5SPsQZ2ffpc889ByvObECT5dNUxEr0dVJ2G4HhcGoZ7/d5ONUE+0yfFLfw6T3xa"
+#        xcode: 15.2
+#        VERSION_NAME: "2.0.0"
+#        FLUTTER_VERSION: "3.24.3"
+#        FEEDBACK_EMAIL: "iosdev78@gmail.com"
+#        FIRST_NAME: "IOS"
+#        LAST_NAME: "Dev"
+#        PHONE_NUMBER: "9023728519"
+#        CONTACT_EMAIL: "iosdev78@gmail.com"
+#        USES_ENCRYPTION: false
+#      cocoapods: default
+#    triggering:
+#      events:
+#        - push
+#      branch_patterns:
+#        - pattern: "master"
+#          include: true
+#          source: true
+#    scripts:
+#      - name: Install Flutter Version
+#        script: |
+#          git clone https://github.com/flutter/flutter.git
+#          cd flutter
+#          git checkout $FLUTTER_VERSION  # Use specified version
+#          export PATH="$PATH:$(pwd)/bin"
+#          flutter channel stable
+#          flutter upgrade
+#      - name: Fetch Flutter Packages
+#        script: |
+#          flutter packages pub get
+#      - name: Install CocoaPods
+#        script: |
+#          find . -name "Podfile" -execdir pod install \;
+#      - name: Initialize Keychain for Code Signing
+#        script: |
+#          keychain initialize
+#          keychain add-certificates
+#      - name: Apply Code Signing Profiles to Xcode
+#        script: |
+#          xcode-project use-profiles
+#      - name: Clean Xcode Build and Install Pods
+#        script: |
+#          flutter clean
+#          rm -rf ios/Pods
+#          rm -rf ios/Podfile.lock
+#          flutter pub get
+#          pod install --repo-update
+#      - name: Flutter build ipa
+#        script: |
+#          # Install app-store-connect CLI if it's not already installed
+#          gem install app_store_connect
+#
+#          # Fetch the latest build number from TestFlight
+#          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number $APP_STORE_APP_ID)
+#
+#          echo "Latest Build Number: $LATEST_BUILD_NUMBER"
+#
+#          # Increment the build number
+#          NEXT_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
+#
+#          echo "Next Build Number: $NEXT_BUILD_NUMBER"
+#
+#          # Use agvtool to update the build number in the Xcode project
+#          cd ios
+#          agvtool new-version -all $NEXT_BUILD_NUMBER
+#
+#          # Build the IPA
+#          flutter build ipa --release \
+#            --build-name=$VERSION_NAME \
+#            --build-number=$NEXT_BUILD_NUMBER \
+#            --export-options-plist=/Users/builder/export_options.plist
+#
+#          # Add export compliance information
+#          echo "Adding export compliance information..."
+#          app-store-connect set-export-compliance --app-id $APP_STORE_APP_ID --build-id $BUILD_ID --uses-encryption $USES_ENCRYPTION
+#
+#          # Invite external testers after the build is ready
+#          BUILD_ID=$(app-store-connect get-latest-testflight-build-id $APP_STORE_APP_ID)
+#          BUILD_STATUS=$(app-store-connect get-build-status --app-id $APP_STORE_APP_ID --build-id $BUILD_ID)
+#
+#          echo "Current Build Status: $BUILD_STATUS"
+#
+#          if [[ "$BUILD_STATUS" == "Ready for Beta Testers" ]]; then
+#            # Invite external testers
+#              app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "external" \
+#              --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
+#              "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
+#              "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
+#
+#              # Invite internal testers
+#              app-store-connect invite-testers --app-id $APP_STORE_APP_ID --group-name "internal" \
+#              --beta-app-info "feedback_email=$FEEDBACK_EMAIL" \
+#              "first_name=$FIRST_NAME" "last_name=$LAST_NAME" \
+#              "phone_number=$PHONE_NUMBER" "email=$CONTACT_EMAIL"
+#          else
+#            echo "Build is not assignable. Current status: $BUILD_STATUS"
+#          fi
+#
+#    artifacts:
+#      - $CM_BUILD_DIR/build/ios/ipa/*.ipa
+#      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+#    publishing:
+#      app_store_connect:
+#        auth: integration
+#        submit_to_testflight: true
+#        submit_to_app_store: false
+#      email:
+#        recipients:
+#          - iosdev78@gmail.com
+#        notify:
+#          success: true
+#          failure: true
