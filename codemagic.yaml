@@ -52,21 +52,6 @@ workflows:
         USES_ENCRYPTION: false
       cocoapods: default
 
-    triggering:
-      events:
-        - tag
-        - push
-      branch_patterns:
-        - pattern: "master"
-          include: true
-      tag_patterns: # Include or exclude watched tag labels
-        - pattern: '*--dev'
-          include: true
-        - pattern: excluded-tag
-          include: false
-        - pattern: included-tag
-          include: true
-
     scripts:
       - name: Install Flutter Version
         script: |
