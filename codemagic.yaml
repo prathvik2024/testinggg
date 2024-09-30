@@ -54,6 +54,7 @@ workflows:
     triggering:
       events:
         - tag
+        - push
       branch_patterns:
         - pattern: "master"
           include: true
