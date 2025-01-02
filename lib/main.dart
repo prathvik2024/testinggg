@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  const String apiUrl = String.fromEnvironment('API_URL', defaultValue: 'fail');
-  const String appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'failed');
-  runApp(const MyApp(
-    apiUrl: apiUrl,
-    appEnv: appEnv,
-  ));
+void main() async {
+  await dotenv.load(fileName: ".env");
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.apiUrl, required this.appEnv});
-
-  final String apiUrl;
-  final String appEnv;
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +19,18 @@ class MyApp extends StatelessWidget {
       ),
       home: MyHomePage(
         title: 'Flutter Demo Home Page',
-        appEnv: appEnv,
-        apiUrl: apiUrl,
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.apiUrl, required this.appEnv});
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
 
   final String title;
-  final String apiUrl;
-  final String appEnv;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -47,8 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API KEY: ${widget.apiUrl}")));
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ENV: ${widget.appEnv}")));
+    String apiUrl = dotenv.get("API_URL", fallback: "fail");
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API URL: ${apiUrl}")));
   }
 
   @override
