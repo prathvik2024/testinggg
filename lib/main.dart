@@ -17,23 +17,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API KEY: $apiUrl")));
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ENV: $appEnv")));
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+        title: 'Flutter Demo Home Page',
+        appEnv: appEnv,
+        apiUrl: apiUrl,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.apiUrl, required this.appEnv});
 
   final String title;
+  final String apiUrl;
+  final String appEnv;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -43,9 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API KEY: ${widget.apiUrl}")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ENV: ${widget.appEnv}")));
   }
 
   @override
