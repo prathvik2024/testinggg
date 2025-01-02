@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     String apiUrl = dotenv.get("API_URL", fallback: "fail");
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API URL: ${apiUrl}")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("API URL: $apiUrl")));
   }
 
   @override
@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'You have pushed the button this many times',
             ),
             Text(
               '$_counter',
